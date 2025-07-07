@@ -11,7 +11,7 @@ namespace YourBonoPlatform.Bonds.Interfaces.REST;
 
 [Authorize]
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 public class BondsController(
     IBondQueryService bondQueryService, 

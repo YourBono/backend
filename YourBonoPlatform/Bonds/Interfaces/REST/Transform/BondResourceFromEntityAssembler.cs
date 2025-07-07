@@ -23,11 +23,13 @@ public static class BondResourceFromEntityAssembler
             entity.GracePeriodTypeId,
             entity.GracePeriodDuration,
             entity.CurrencyTypeId,
-            entity.PrimeRate,
+            entity.PremiumRate,
             entity.StructuredRate,
             entity.PlacementRate,
             entity.FloatingRate,
-            entity.CavaliRate
+            entity.CavaliRate,
+            entity.DaysPerYear,
+            entity.TaxRate
         );
     }
 }

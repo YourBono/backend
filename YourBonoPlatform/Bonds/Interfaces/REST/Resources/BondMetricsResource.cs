@@ -8,5 +8,8 @@ public record BondMetricsResource(
     decimal Convexity,
     decimal ModifiedDuration,
     decimal Tcea,
-    decimal Trea
+    decimal Trea,
+    decimal NetPresentValue,
+    decimal Cok,
+    decimal TceaWithShield
     );

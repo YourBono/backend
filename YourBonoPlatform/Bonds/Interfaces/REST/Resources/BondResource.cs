@@ -16,9 +16,11 @@ public record BondResource(
     int GracePeriodTypeId,
     int GracePeriodDuration,
     int CurrencyTypeId,
-    decimal PrimeRate,
+    decimal PremiumRate,
     decimal StructuredRate,
     decimal PlacementRate,
     decimal FloatingRate,
-    decimal CavaliRate
+    decimal CavaliRate,
+    int DaysPerYear,
+    decimal TaxRate
     );

@@ -10,12 +10,6 @@ public static class SignUpCommandFromResourceAssembler
         return new SignUpCommand(
             resource.Username,
             resource.Password,
-            resource.Email,
-            resource.Name,
-            resource.FatherName,
-            resource.MotherName,
-            resource.DateOfBirth,
-            resource.DocumentNumber,
-            resource.Phone);
+            resource.Email);
     }
 }

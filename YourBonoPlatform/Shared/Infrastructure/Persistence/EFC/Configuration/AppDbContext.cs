@@ -51,11 +51,13 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
         builder.Entity<Bond>().Property(b => b.GracePeriodTypeId).IsRequired();
         builder.Entity<Bond>().Property(b => b.GracePeriodDuration).IsRequired();
         builder.Entity<Bond>().Property(b => b.CurrencyTypeId).IsRequired();
-        builder.Entity<Bond>().Property(b => b.PrimeRate).IsRequired();
+        builder.Entity<Bond>().Property(b => b.PremiumRate).IsRequired();
         builder.Entity<Bond>().Property(b => b.StructuredRate).IsRequired();
         builder.Entity<Bond>().Property(b => b.PlacementRate).IsRequired();
         builder.Entity<Bond>().Property(b => b.FloatingRate).IsRequired();
         builder.Entity<Bond>().Property(b => b.CavaliRate).IsRequired();
+        builder.Entity<Bond>().Property(b => b.DaysPerYear).IsRequired();
+        builder.Entity<Bond>().Property(b => b.TaxRate).IsRequired();
         builder.Entity<Bond>().HasOne<User>().WithMany().HasForeignKey(b => b.UserId);
         
         builder.Entity<BondMetrics>().HasKey(b => b.Id);
@@ -67,6 +69,9 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
         builder.Entity<BondMetrics>().Property(b => b.ModifiedDuration).IsRequired();
         builder.Entity<BondMetrics>().Property(b => b.Tcea).IsRequired();
         builder.Entity<BondMetrics>().Property(b => b.Trea).IsRequired();
+        builder.Entity<BondMetrics>().Property(b => b.NetPresentValue).IsRequired();
+        builder.Entity<BondMetrics>().Property(b => b.Cok).IsRequired();
+        builder.Entity<BondMetrics>().Property(b => b.TceaWithShield).IsRequired();
         builder.Entity<BondMetrics>().HasOne<Bond>().WithMany().HasForeignKey(b => b.BondId);
         
         builder.Entity<CashFlowItem>().HasKey(c => c.Id);

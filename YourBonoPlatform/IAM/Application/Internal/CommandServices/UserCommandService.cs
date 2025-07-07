@@ -38,9 +38,6 @@ public class UserCommandService(
         
         if(!command.Email.Contains('@'))
             throw new Exception("Invalid email address");
-        
-        if (command.Phone.Length < 9)
-            throw new Exception("Phone number must to be valid");
 
         if (await userRepository.ExistsByUsername(command.Username))
             throw new Exception($"Username {command.Username} is already taken");

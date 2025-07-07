@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using YourBonoPlatform.Bonds.Domain.Model.Aggregates;
 using YourBonoPlatform.Bonds.Domain.Model.Entities;
 using YourBonoPlatform.Bonds.Domain.Model.ValueObjects;
@@ -35,13 +31,13 @@ public class BondValuationService : IBondValuationService
 
         for (int period = 1; period <= totalPeriods; period++)
         {
-            currentDate = currentDate.AddDays(360 / bond.Frequency);
+            currentDate = currentDate.AddDays(bond.DaysPerYear / bond.Frequency);
             decimal amortization = 0;
             decimal interest = balance * periodInterestRate;
 
             if (period == totalPeriods)
             {
-                interest = balance * (periodInterestRate + bond.PrimeRate / 100m);
+                interest = balance * (periodInterestRate + bond.PremiumRate / 100m);
             }
 
             bool isGrace = period <= bond.GracePeriodDuration;
@@ -65,7 +61,8 @@ public class BondValuationService : IBondValuationService
                 else if (bond.GracePeriodTypeId == (int)EGracePeriodTypes.Partial)
                 {
                     totalPayment = interest;
-                    finalBalance = balance + interest;
+                    amortization = 0;
+                    finalBalance = balance;
                     bondHolderCashFlow = totalPayment;
                 }
             }
@@ -76,7 +73,7 @@ public class BondValuationService : IBondValuationService
                 bondHolderCashFlow = totalPayment;
             }
 
-            finalBalance = Math.Abs(finalBalance) < 0.00001m ? 0 : Math.Round(finalBalance, MathPrecision, Rounding);
+            finalBalance = Math.Abs(finalBalance) < 0.00001m ? 0 : finalBalance;
             issuerCashFlow = -bondHolderCashFlow;
 
             decimal presentValue = GetPresentValue(bondHolderCashFlow, periodDiscountRate, period);
@@ -92,9 +89,9 @@ public class BondValuationService : IBondValuationService
                 Math.Round(totalPayment, 2),
                 Math.Round(issuerCashFlow, 2),
                 Math.Round(bondHolderCashFlow, 2),
-                Math.Round(presentValue, 2),
-                Math.Round(presentValueTimesPeriod, 2),
-                Math.Round(convexityFactor, 2)));
+                Math.Round(presentValue, 10),
+                Math.Round(presentValueTimesPeriod, 10),
+                Math.Round(convexityFactor, 10)));
 
             balance = finalBalance;
         }
@@ -111,19 +108,50 @@ public class BondValuationService : IBondValuationService
         decimal convexity = GetConvexity(cashFlows.Select(c => c.ConvexityFactor).ToList(), maxBondPrice, periodDiscountRate);
         decimal tcea = GetTCEA(cashFlows, bond.Frequency);
         decimal trea = GetTREA(cashFlows, bond.Frequency);
+    
+        // Nuevos valores
+        decimal cok = bond.DiscountRate / 100m;
+        decimal netPresentValue = maxBondPrice - bond.MarketValue;
+        decimal tceaWithShield = GetTCEAWithShield(cashFlows, bond.Frequency, bond.TaxRate);
 
-        return await Task.FromResult(new BondMetrics(0, bond.Id, maxBondPrice, duration, convexity, modifiedDuration, tcea, trea));
+        return await Task.FromResult(new BondMetrics(
+            0,
+            bond.Id,
+            maxBondPrice,
+            duration,
+            convexity,
+            modifiedDuration,
+            tcea,
+            trea,
+            netPresentValue,
+            cok,
+            tceaWithShield
+        ));
     }
 
     private decimal GetTEA(Bond bond)
     {
         if (bond.InterestRateTypeId == (int)EInterestTypes.Effective)
+        {
+            // Ya es TEA
             return bond.InterestRate / 100m;
+        }
 
-        decimal tnp = bond.InterestRate / 100m;
-        int m = 360 / bond.Capitalization;
-        return (decimal)Math.Pow((double)(1 + tnp / m), m) - 1;
+        // Si la capitalización es igual a la frecuencia de pago, no se convierte
+        if (bond.Capitalization == bond.DaysPerYear / bond.Frequency)
+        {
+            // La TNA ya es compatible con la frecuencia de pago
+            return bond.InterestRate / 100m;
+        }
+
+        // Si no, se convierte la TNA a TEA
+        decimal tna = bond.InterestRate / 100m;
+        int m = bond.DaysPerYear / bond.Capitalization;
+        return (decimal)Math.Pow((double)(1 + tna / m), m) - 1;
     }
+
+
+
 
     private decimal GetPeriodicInterestRate(decimal tea, int frequency)
     {
@@ -134,10 +162,14 @@ public class BondValuationService : IBondValuationService
 
     private decimal GetPeriodDiscountRate(decimal discountRate, int frequency)
     {
+        if (discountRate == 0)
+            return 0;
+    
         double baseVal = (double)(1 + discountRate);
         double exponent = 1.0 / frequency;
         return (decimal)(Math.Pow(baseVal, exponent) - 1);
     }
+
 
     private decimal GetPresentValue(decimal value, decimal rate, int period)
     {
@@ -201,4 +233,19 @@ public class BondValuationService : IBondValuationService
 
         throw new Exception("IRR did not converge");
     }
+    
+    private decimal GetTCEAWithShield(IEnumerable<CashFlowItem> cashFlows, int frequency, decimal taxRate)
+    {
+        var flows = cashFlows.Select(c => c.IssuerCashFlow).ToList();
+
+        for (int i = 1; i < flows.Count; i++)
+        {
+            decimal interest = cashFlows.ElementAt(i).Interest;
+            flows[i] += interest * taxRate / 100m;
+        }
+
+        decimal tcep = CalculateIRR(flows);
+        return (decimal)Math.Pow((double)(1 + tcep), frequency) - 1;
+    }
+
 }

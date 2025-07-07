@@ -15,7 +15,10 @@ public static class BondMetricsResourceFromEntityAssembler
             entity.Convexity,
             entity.ModifiedDuration,
             entity.Tcea,
-            entity.Trea
+            entity.Trea,
+            entity.NetPresentValue,
+            entity.Cok,
+            entity.TceaWithShield
         );
     }
 }

@@ -22,11 +22,13 @@ public static class CreateBondCommandFromResourceAssembler
             resource.GracePeriodTypeId,
             resource.GracePeriodDuration,
             resource.CurrencyTypeId,
-            resource.PrimeRate,
+            resource.PremiumRate,
             resource.StructuredRate,
             resource.PlacementRate,
             resource.FloatingRate,
-            resource.CavaliRate
+            resource.CavaliRate,
+            resource.DaysPerYear,
+            resource.TaxRate
         );
     }
 }

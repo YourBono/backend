@@ -22,11 +22,13 @@ public class Bond
         GracePeriodTypeId = 0;
         GracePeriodDuration = 0;
         CurrencyTypeId = 0;
-        PrimeRate = 0.0m;
+        PremiumRate = 0.0m;
         StructuredRate = 0.0m;
         PlacementRate = 0.0m;
         FloatingRate = 0.0m;
         CavaliRate = 0.0m;
+        DaysPerYear = 0;
+        TaxRate = 0.0m;
     }
     public Bond(CreateBondCommand command)
     {
@@ -44,11 +46,13 @@ public class Bond
         GracePeriodTypeId = command.GracePeriodTypeId;
         GracePeriodDuration = command.GracePeriodDuration;
         CurrencyTypeId = command.CurrencyTypeId;
-        PrimeRate = command.PrimeRate;
+        PremiumRate = command.PremiumRate;
         StructuredRate = command.StructuredRate;
         PlacementRate = command.PlacementRate;
         FloatingRate = command.FloatingRate;
         CavaliRate = command.CavaliRate;
+        DaysPerYear = command.DaysPerYear;
+        TaxRate = command.TaxRate;
     }
 
     public void Update(UpdateBondCommand command)
@@ -66,11 +70,13 @@ public class Bond
         GracePeriodTypeId = command.GracePeriodTypeId;
         GracePeriodDuration = command.GracePeriodDuration;
         CurrencyTypeId = command.CurrencyTypeId; 
-        PrimeRate = command.PrimeRate;
+        PremiumRate = command.PremiumRate;
         StructuredRate = command.StructuredRate;
         PlacementRate = command.PlacementRate;
         FloatingRate = command.FloatingRate;
         CavaliRate = command.CavaliRate;
+        DaysPerYear = command.DaysPerYear;
+        TaxRate = command.TaxRate;
     }
     
     public int Id { get; private set; }
@@ -88,9 +94,12 @@ public class Bond
     public int GracePeriodTypeId { get; private set; }
     public int GracePeriodDuration { get; private set; }
     public int CurrencyTypeId { get; private set; }
-    public decimal PrimeRate { get; private set; }
+    public decimal PremiumRate { get; private set; }
     public decimal StructuredRate { get; private set; }
     public decimal PlacementRate { get; private set; }
     public decimal FloatingRate { get; private set; }
     public decimal CavaliRate { get; private set; }
+    public int DaysPerYear { get; private set; }
+    public decimal TaxRate { get; private set; }
+    
 }
